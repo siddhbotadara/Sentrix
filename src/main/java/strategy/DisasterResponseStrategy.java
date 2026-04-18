@@ -1,5 +1,5 @@
 package main.java.strategy;
 
 public interface DisasterResponseStrategy {
-    void transmitSafetyProcedures();
+    void transmitSafetyProcedures();                // Output the Safety Procedures for the disaster
 }
