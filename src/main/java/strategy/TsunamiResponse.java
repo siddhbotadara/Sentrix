@@ -1,4 +1,4 @@
-package main.java.strategy;
+package strategy;
 
 public class TsunamiResponse implements DisasterResponseStrategy {
 
