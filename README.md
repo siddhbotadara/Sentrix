@@ -50,6 +50,58 @@ Sentrix provides:
 
 ---
 
+## 🛠️ Requirements
+
+Make sure you have the following installed:
+
+- Java JDK 8 or higher  
+- Apache Maven  
+
+### Install Maven
+Download from: https://maven.apache.org/download.cgi  
+
+Verify installation:
+mvn -v
+
+---
+## ⚙️ Setup Instructions
+
+### 1. Clone the repository
+- git clone https://github.com/siddhbotadara/Sentrix.git
+
+- cd Sentrix
+
+### 2. Create `.env` file
+
+- In the root directory, create a file named:
+
+  .env
+
+
+- Add your API key:
+
+  WEATHER_API_KEY=your_openweathermap_api_key
+
+
+Get a free API key from:
+https://openweathermap.org/ or contact owner
+
+---
+
+### 3. Install dependencies
+
+- mvn clean install
+
+
+---
+
+### 4. Run the application
+
+- mvn exec:java
+
+
+---
+
 ## 🧩 System Architecture
 
 Sensors → Weather Station → Alert System → Response Engine → Command Center → Clients (GUI)
