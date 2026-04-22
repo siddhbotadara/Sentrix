@@ -1,9 +1,18 @@
 package strategy;
 
-public class TsunamiResponse implements DisasterResponseStrategy {
+import gui.ThailandMapPanel;
+import models.SeverityLevel;
 
+public class TsunamiResponse implements DisasterResponseStrategy {
     @Override
     public void transmitSafetyProcedures() {
-        System.out.println("Tsunami Detected!");
+        System.out.println("Tsunami Detected! Evacuate to higher ground.");
+    }
+
+    @Override
+    public void simulate(ThailandMapPanel map) {
+        // Target Phuket area
+        map.setProvinceStatus("TH83", SeverityLevel.CRITICAL); 
+        map.triggerDisasterOverlay("Phuket", 100);
     }
 }

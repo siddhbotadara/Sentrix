@@ -2,17 +2,36 @@ package gui;
 
 import models.SeverityLevel;
 import sensors.*;
+import strategy.DisasterResponseStrategy;
+import strategy.EarthquakeResponse;
+import strategy.FloodResponse;
+import strategy.HeatwaveResponse;
+import strategy.TsunamiResponse;
+import strategy.TyphoonResponse;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 
 public class MainDashboard extends JFrame {
     private ThailandMapPanel mapPanel;
     private JTextArea consoleArea;
     private JPanel sensorListPanel;
     private JLabel nationalTempLabel;
+    private static final Map<String, Color> DISASTER_THEMES;
+
+    static {
+        DISASTER_THEMES = new LinkedHashMap<>();
+        DISASTER_THEMES.put("TSUNAMI",    new Color(43, 108, 176)); // Steel Blue
+        DISASTER_THEMES.put("FLOOD",      new Color(56, 178, 172)); // Teal
+        DISASTER_THEMES.put("EARTHQUAKE", new Color(155, 107, 44)); // Bronze/Dirt
+        DISASTER_THEMES.put("TYPHOON",    new Color(112, 55, 148)); // Deep Grape
+        DISASTER_THEMES.put("HEATWAVE",   new Color(197, 48, 48));  // Crimson
+    }
 
     // Geographically dispersed regions to cover all of Thailand
     private final List<String> REGIONS = Arrays.asList(
@@ -30,21 +49,22 @@ public class MainDashboard extends JFrame {
     public MainDashboard() {
         setTitle("SENTRIX COMMAND CENTER");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(1400, 850);
-        setLayout(new BorderLayout(15, 15));
+        setSize(1500, 900);
+        setLayout(new BorderLayout(0, 0));
         getContentPane().setBackground(new Color(11, 14, 20));
 
         initUI();
     }
 
     private void initUI() {
+
         // --- 1. CENTER: THE MAP ---
         mapPanel = new ThailandMapPanel();
         add(mapPanel, BorderLayout.CENTER);
 
         // --- 2. WEST: SENSOR PANEL (TELEMETRY) ---
         JPanel sidebar = new JPanel(new BorderLayout());
-        sidebar.setPreferredSize(new Dimension(320, 0));
+        sidebar.setPreferredSize(new Dimension(430, 10));
         sidebar.setBackground(new Color(21, 25, 33));
         sidebar.setBorder(new EmptyBorder(15, 15, 15, 15));
 
@@ -55,7 +75,7 @@ public class MainDashboard extends JFrame {
         
         JLabel natTitle = new JLabel(" THAILAND (OVERALL)", SwingConstants.LEFT);
         natTitle.setForeground(new Color(0, 229, 255));
-        natTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
+        natTitle.setFont(new Font("SansSerif", Font.BOLD, 16));
         
         nationalTempLabel = new JLabel(" Synchronizing...", SwingConstants.LEFT);
         nationalTempLabel.setForeground(Color.WHITE);
@@ -84,36 +104,74 @@ public class MainDashboard extends JFrame {
         controlPanel.setBorder(new EmptyBorder(20, 15, 20, 15));
 
         JLabel ctrlTitle = new JLabel("SYSTEM CONTROLS");
+        ctrlTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         ctrlTitle.setForeground(new Color(255, 80, 80));
         ctrlTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
         controlPanel.add(ctrlTitle);
-        controlPanel.add(Box.createVerticalStrut(20));
 
-        JButton tsunamiBtn = createStyledButton("TRIGGER TSUNAMI", new Color(255, 0, 85));
-        tsunamiBtn.addActionListener(e -> triggerEvent("TSUNAMI"));
-        controlPanel.add(tsunamiBtn);
-        controlPanel.add(Box.createVerticalStrut(10));
+        controlPanel.add(Box.createVerticalStrut(30));
 
+        // Map disaster names to their actual Strategy objects
+        Map<String, DisasterResponseStrategy> simulations = new LinkedHashMap<>();
+        simulations.put("TSUNAMI", new TsunamiResponse());
+        simulations.put("FLOOD", new FloodResponse());
+        simulations.put("EARTHQUAKE", new EarthquakeResponse());
+        simulations.put("TYPHOON", new TyphoonResponse());
+        simulations.put("HEATWAVE", new HeatwaveResponse());
+
+
+        // DYNAMICALLY CREATE 5 BUTTONS
+        for (String type : simulations.keySet()) {
+            Color themeColor = DISASTER_THEMES.getOrDefault(type, Color.RED);
+            JButton btn = createStyledButton("TRIGGER " + type, themeColor);
+            btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+            
+            btn.addActionListener(e -> {
+                log("CRITICAL: " + type + " simulation engaged.");
+                simulations.get(type).simulate(mapPanel);
+                simulations.get(type).transmitSafetyProcedures();
+            });
+            controlPanel.add(btn);
+
+            controlPanel.add(Box.createVerticalStrut(55));
+        }
+
+        controlPanel.add(Box.createVerticalGlue()); 
+
+        // SYSTEM RESET BUTTON
         JButton resetBtn = createStyledButton("SYSTEM RESET", new Color(100, 100, 100));
-        resetBtn.addActionListener(e -> triggerEvent("RESET"));
+        resetBtn.addActionListener(e -> {
+            mapPanel.clearOverlay(); //
+            log("SYSTEM: Recovery protocols complete. Map overlays cleared.");
+        });
+        controlPanel.add(Box.createVerticalGlue());
         controlPanel.add(resetBtn);
+
+        controlPanel.add(Box.createVerticalStrut(10));
 
         add(controlPanel, BorderLayout.EAST);
 
-        // --- 4. SOUTH: CONSOLE ---
-        initConsole();
+        // --- 4. SOUTH: CONSOLE ---   
+        consoleArea = new JTextArea(7, 0); // INCREASED HEIGHT (8 -> 12 lines)
+        consoleArea.setBackground(new Color(10, 12, 16));
+        consoleArea.setForeground(new Color(0, 255, 100)); // Terminal Green
+        consoleArea.setFont(new Font("Monospaced", Font.BOLD, 17)); // LARGER TEXT
+        consoleArea.setMargin(new Insets(15, 15, 15, 15));
+        
+        JScrollPane consoleScroll = new JScrollPane(consoleArea);
+        consoleScroll.setBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, new Color(40, 45, 60)));
+        add(consoleScroll, BorderLayout.SOUTH);
 
-        // Start Telemetry Refresh
-        Timer timer = new Timer(30000, e -> refreshSensors());
-        timer.start();
+        // Start Telemetry
+        new Timer(30000, e -> refreshSensors()).start();
         refreshSensors();
     }
 
     private void initConsole() {
-        consoleArea = new JTextArea(8, 0);
+        consoleArea = new JTextArea(12, 0);
         consoleArea.setBackground(new Color(5, 7, 10));
         consoleArea.setForeground(new Color(0, 229, 255));
-        consoleArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        consoleArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
         consoleArea.setEditable(false);
         
         JScrollPane consoleScroll = new JScrollPane(consoleArea);
@@ -143,34 +201,60 @@ public class MainDashboard extends JFrame {
     }
 
     private JPanel createRegionRow(WeatherData data) {
-        JPanel p = new JPanel(new GridLayout(2, 1));
+        JPanel p = new JPanel(new GridLayout(3, 1)); // Increased to 3 rows
         p.setBackground(new Color(30, 35, 45));
-        p.setMaximumSize(new Dimension(300, 70));
+        p.setMaximumSize(new Dimension(500, 120)); // Wider and taller
         p.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(45, 50, 65)),
-            new EmptyBorder(10, 10, 10, 10)
+            new EmptyBorder(15, 20, 15, 20)
         ));
         
         JLabel name = new JLabel(data.cityName.toUpperCase() + "  " + data.temp + "°C");
-        name.setForeground(Color.WHITE);
-        name.setFont(new Font("SansSerif", Font.BOLD, 12));
+        name.setForeground(new Color(0, 229, 255)); // Cyber Cyan
+        name.setFont(new Font("SansSerif", Font.BOLD, 15));
         
-        JLabel stats = new JLabel("Wind: " + data.windSpeed + "m/s | Hum: " + data.humidity + "%");
-        stats.setFont(new Font("Monospaced", Font.PLAIN, 10));
-        stats.setForeground(new Color(150, 150, 150));
+        // Line 1: Basic Stats
+        JLabel stats1 = new JLabel("WIND: " + data.windSpeed + "m/s | HUM: " + data.humidity + "%");
+        stats1.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        stats1.setForeground(Color.LIGHT_GRAY);
+
+        // Line 2: Advanced Stats (New)
+        String visStr = String.format("%.1fkm", data.visibility / 1000.0);
+        JLabel stats2 = new JLabel("PRES: " + data.pressure + "hPa | VIS: " + visStr + " | RAIN: " + data.rain + "mm");
+        stats2.setFont(new Font("Monospaced", Font.PLAIN, 13));
+        stats2.setForeground(new Color(100, 180, 100)); // Tactical Green
 
         p.add(name);
-        p.add(stats);
+        p.add(stats1);
+        p.add(stats2);
         return p;
     }
 
     private JButton createStyledButton(String text, Color bg) {
         JButton b = new JButton(text);
-        b.setMaximumSize(new Dimension(220, 45));
+        
+        // INCREASE THESE NUMBERS for bigger buttons
+        // Width 240 -> 260 | Height 60 -> 70
+        Dimension size = new Dimension(260, 50); 
+        
+        b.setPreferredSize(size);
+        b.setMinimumSize(size);
+        b.setMaximumSize(size); // Critical for BoxLayout to prevent stretching
+        
         b.setBackground(bg);
         b.setForeground(Color.WHITE);
         b.setFocusPainted(false);
-        b.setFont(new Font("SansSerif", Font.BOLD, 11));
+        b.setBorder(BorderFactory.createLineBorder(bg.brighter(), 2));
+        b.setFont(new Font("SansSerif", Font.BOLD, 14)); // Slightly larger font
+        
+        // FORCE CENTER ALIGNMENT
+        b.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) { b.setBackground(bg.brighter()); }
+            public void mouseExited(java.awt.event.MouseEvent evt) { b.setBackground(bg); }
+        });
+        
         return b;
     }
 
