@@ -16,12 +16,15 @@ public class MainDashboard extends JFrame {
 
     // Geographically dispersed regions to cover all of Thailand
     private final List<String> REGIONS = Arrays.asList(
-        "Chiang Mai",   // NORTH
-        "Khon Kaen",    // NORTHEAST
         "Bangkok",      // CENTRAL
+        "Phuket",        // SOUTH / PENINSULA
+        "Chiang Rai",
+        "Chiang Mai",   // NORTH
         "Kanchanaburi", // WEST
-        "Chon Buri",    // EAST / COASTAL
-        "Phuket"        // SOUTH / PENINSULA
+        "Songkhla",
+        "Khon Kaen",    // NORTHEAST   
+        "Chumphon"
+        
     );
 
     public MainDashboard() {
@@ -66,7 +69,7 @@ public class MainDashboard extends JFrame {
         sensorListPanel.setLayout(new BoxLayout(sensorListPanel, BoxLayout.Y_AXIS));
         sensorListPanel.setBackground(new Color(21, 25, 33));
         
-        JScrollPane sensorScroll = new JScrollPane(sensorListPanel); // Renamed to avoid error
+        JScrollPane sensorScroll = new JScrollPane(sensorListPanel);
         sensorScroll.setBorder(null);
         sensorScroll.getVerticalScrollBar().setUnitIncrement(12);
         sidebar.add(sensorScroll, BorderLayout.CENTER);
@@ -100,8 +103,8 @@ public class MainDashboard extends JFrame {
         // --- 4. SOUTH: CONSOLE ---
         initConsole();
 
-        // Start Telemetry Refresh (Every 1 minute)
-        Timer timer = new Timer(60000, e -> refreshSensors());
+        // Start Telemetry Refresh
+        Timer timer = new Timer(30000, e -> refreshSensors());
         timer.start();
         refreshSensors();
     }
@@ -113,7 +116,7 @@ public class MainDashboard extends JFrame {
         consoleArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         consoleArea.setEditable(false);
         
-        JScrollPane consoleScroll = new JScrollPane(consoleArea); // Renamed to avoid error
+        JScrollPane consoleScroll = new JScrollPane(consoleArea);
         consoleScroll.setBorder(BorderFactory.createLineBorder(new Color(40, 45, 60)));
         add(consoleScroll, BorderLayout.SOUTH);
     }
@@ -173,11 +176,21 @@ public class MainDashboard extends JFrame {
 
     private void triggerEvent(String action) {
         if (action.equals("TSUNAMI")) {
-            mapPanel.setProvinceStatus("TH-83", SeverityLevel.CRITICAL); // Phuket
-            log("CRITICAL: Seismic anomaly detected in TH-83. Deploying coastal barriers.");
-        } else {
-            mapPanel.setProvinceStatus("TH-83", SeverityLevel.SAFE);
-            log("SYSTEM: Emergency protocols disengaged. All provinces nominal.");
+            // Update province color (Phuket)
+            mapPanel.setProvinceStatus("TH90", SeverityLevel.CRITICAL); 
+            
+            // Trigger the Red Overlay Circle (Center at Phuket, Radius 75)
+            mapPanel.triggerDisasterOverlay("Songkhla", 75);
+            
+            log("ALARM: Tsunami impact visualization active for Phuket (TH10).");
+        } else if (action.equals("RESET")) {
+            // Reset color
+            mapPanel.setProvinceStatus("TH90", SeverityLevel.SAFE);
+            
+            // Clear the Overlay
+            mapPanel.clearOverlay();
+            
+            log("SYSTEM: Recovery protocols complete. Map overlays cleared.");
         }
     }
 

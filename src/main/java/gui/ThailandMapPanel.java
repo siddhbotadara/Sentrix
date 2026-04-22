@@ -3,9 +3,9 @@ package gui;
 import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGElement;
 import com.kitfox.svg.SVGUniverse;
+import com.kitfox.svg.SVGException;
 import com.kitfox.svg.animation.AnimationElement;
 import models.SeverityLevel;
-
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
@@ -13,9 +13,11 @@ import java.net.URL;
 public class ThailandMapPanel extends JPanel {
     private SVGUniverse svgUniverse = new SVGUniverse();
     private SVGDiagram diagram;
+    private DisasterOverlay disasterOverlay;
 
     public ThailandMapPanel() {
         setBackground(new Color(11, 14, 20)); // Deep Navy Background
+        this.disasterOverlay = new DisasterOverlay();
         loadMap();
     }
 
@@ -34,6 +36,17 @@ public class ThailandMapPanel extends JPanel {
         }
     }
 
+    // Bridge methods to control the overlay from the Dashboard
+    public void triggerDisasterOverlay(String cityName, int radius) {
+        disasterOverlay.setEffect(cityName, radius);
+        repaint();
+    }
+
+    public void clearOverlay() {
+        disasterOverlay.clear();
+        repaint();
+    }
+
     public void setProvinceStatus(String id, SeverityLevel level) {
         if (diagram == null) return;
         try {
@@ -43,7 +56,7 @@ public class ThailandMapPanel extends JPanel {
                     level.getColor().getRed(), 
                     level.getColor().getGreen(), 
                     level.getColor().getBlue());
-                element.setAttribute("fill", AnimationElement.AT_CSS, hex);
+                element.setAttribute("fill", AnimationElement.AT_XML, hex);
                 diagram.updateTime(0);
                 repaint();
             }
@@ -71,8 +84,9 @@ public class ThailandMapPanel extends JPanel {
 
         try {
             diagram.render(g2);
-        } catch (Exception e) {
-            e.printStackTrace();
+            disasterOverlay.draw(g2);
+        } catch (SVGException e) {
+            System.err.println("Rendering error: " + e.getMessage());
         }
     }
 }
