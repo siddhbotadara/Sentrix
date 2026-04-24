@@ -1,5 +1,5 @@
 package observer;
 
 public interface Observer {
-    void update(String action);
+    void update(String disasterType, String location, String instructions);
 }

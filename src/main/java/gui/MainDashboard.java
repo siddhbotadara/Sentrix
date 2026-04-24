@@ -1,6 +1,7 @@
 package gui;
 
 import models.SeverityLevel;
+import observer.DisasterBroadcaster;
 import sensors.*;
 import strategy.DisasterResponseStrategy;
 import strategy.EarthquakeResponse;
@@ -130,19 +131,50 @@ public class MainDashboard extends JFrame {
                 log("CRITICAL: " + type + " simulation engaged.");
                 simulations.get(type).simulate(mapPanel);
                 simulations.get(type).transmitSafetyProcedures();
-            });
-            controlPanel.add(btn);
 
+                String targetCity = "Bangkok"; // Default
+                String helpMsg = "Please follow standard emergency procedures.";
+
+                // Logic to map the disaster type to the correct geographic region
+                if (type.equals("TSUNAMI")) {
+                    targetCity = "Phuket";
+                    helpMsg = "EVACUATE INLAND. Seek higher ground immediately. Tsunami waves expected within 15 minutes.";
+                } else if (type.equals("EARTHQUAKE")) {
+                    targetCity = "Chiang Rai";
+                    helpMsg = "DROP, COVER, AND HOLD ON. Stay away from glass, windows, and outer walls.";
+                } else if (type.equals("FLOOD")) {
+                    targetCity = "Chiang Mai";
+                    helpMsg = "FLASH FLOOD WARNING. Move to higher floors. Do not attempt to walk or drive through flood waters.";
+                } else if (type.equals("TYPHOON")) {
+                    targetCity = "Chumphon";
+                    helpMsg = "HIGH WIND WARNING. Secure loose outdoor objects and stay indoors away from windows.";
+                } else if (type.equals("HEATWAVE")) {
+                    targetCity = "Khon Kaen";
+                    helpMsg = "EXTREME HEAT ALERT. Limit outdoor activity, stay hydrated, and check on vulnerable neighbors.";
+                }
+
+                DisasterBroadcaster.getInstance().notifyObservers(type, targetCity, helpMsg);
+            });
+
+            controlPanel.add(btn);
             controlPanel.add(Box.createVerticalStrut(55));
         }
 
         controlPanel.add(Box.createVerticalGlue()); 
 
+        JButton openCitizenBtn = createStyledButton("OPEN CITIZEN APP", new Color(70, 70, 70));
+        openCitizenBtn.addActionListener(e -> {
+            new CitizenGUI().setVisible(true);
+        });
+        controlPanel.add(openCitizenBtn);
+
         // SYSTEM RESET BUTTON
         JButton resetBtn = createStyledButton("SYSTEM RESET", new Color(100, 100, 100));
         resetBtn.addActionListener(e -> {
-            mapPanel.clearOverlay(); //
+            mapPanel.clearOverlay();
             log("SYSTEM: Recovery protocols complete. Map overlays cleared.");
+            // Notify all observers to reset
+            DisasterBroadcaster.getInstance().notifyObservers("RESET", "", "");
         });
         controlPanel.add(Box.createVerticalGlue());
         controlPanel.add(resetBtn);
