@@ -43,12 +43,25 @@ public class SensorFactory {
             int humidity = Integer.parseInt(extract(json, "\"humidity\":", ","));
             double wind = Double.parseDouble(extract(json, "\"speed\":", ","));
             String desc = extract(json, "\"description\":\"", "\"");
+            int pressure = Integer.parseInt(extract(json, "\"pressure\":", ","));
+            int visibility = Integer.parseInt(extract(json, "\"visibility\":", ","));
 
-            return new WeatherData(city, temp, humidity, wind, desc);
+            double rain = 0.0;
+            if (json.contains("\"rain\"")) {
+                // Extracts the value inside "1h": or "3h":
+                try {
+                    rain = Double.parseDouble(extract(json, "\"1h\":", "}"));
+                } catch (Exception e) {
+                    // Fallback for different JSON formats or 3h data
+                    rain = 0.0;
+                }
+            }
+
+            return new WeatherData(city, temp, humidity, wind, desc, pressure, visibility,rain);
         } catch (Exception e) {
             e.printStackTrace(); 
 
-            return new WeatherData(city, 0.0, 0, 0.0, "Node Offline");
+            return new WeatherData(city, 0.0, 0, 0.0, "Node Offline",0,0,0.0);
         }
     }
 
