@@ -13,6 +13,6 @@ public class FloodResponse implements DisasterResponseStrategy {
     public void simulate(ThailandMapPanel map) {
         // Target Northern regions like Chiang Mai
         map.setProvinceStatus("TH50", SeverityLevel.CRITICAL);
-        map.triggerDisasterOverlay("Chiang Mai", 85);
+        map.triggerDisasterOverlay("Chiang Mai", 85, SeverityLevel.CRITICAL.getOverlayColor());
     }
 }

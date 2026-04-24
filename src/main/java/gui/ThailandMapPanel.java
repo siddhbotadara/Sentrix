@@ -37,8 +37,8 @@ public class ThailandMapPanel extends JPanel {
     }
 
     // Bridge methods to control the overlay from the Dashboard
-    public void triggerDisasterOverlay(String cityName, int radius) {
-        disasterOverlay.setEffect(cityName, radius);
+    public void triggerDisasterOverlay(String cityName, int radius, Color color) {
+        disasterOverlay.setEffect(cityName, radius, color);
         repaint();
     }
 
@@ -52,10 +52,9 @@ public class ThailandMapPanel extends JPanel {
         try {
             SVGElement element = diagram.getElement(id);
             if (element != null) {
-                String hex = String.format("#%02x%02x%02x", 
-                    level.getColor().getRed(), 
-                    level.getColor().getGreen(), 
-                    level.getColor().getBlue());
+                // Ensure this matches your Enum's color getter (e.g., getCoreColor or getColor)
+                Color c = level.getCoreColor(); 
+                String hex = String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
                 element.setAttribute("fill", AnimationElement.AT_XML, hex);
                 diagram.updateTime(0);
                 repaint();

@@ -12,11 +12,14 @@ import strategy.TyphoonResponse;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+
+import decorator.*;
 
 public class MainDashboard extends JFrame {
     private ThailandMapPanel mapPanel;
@@ -125,35 +128,39 @@ public class MainDashboard extends JFrame {
         for (String type : simulations.keySet()) {
             Color themeColor = DISASTER_THEMES.getOrDefault(type, Color.RED);
             JButton btn = createStyledButton("TRIGGER " + type, themeColor);
-            btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-            
+            // Inside the button loop in initUI()
             btn.addActionListener(e -> {
-                log("CRITICAL: " + type + " simulation engaged.");
-                simulations.get(type).simulate(mapPanel);
-                simulations.get(type).transmitSafetyProcedures();
+                // 1. Select Severity
+                SeverityLevel[] levels = SeverityLevel.values();
+                SeverityLevel selectedLevel = (SeverityLevel) JOptionPane.showInputDialog(
+                        this, "Select Severity for " + type, "SENTRIX SECURE",
+                        JOptionPane.QUESTION_MESSAGE, null, levels, levels[1]);
 
-                String targetCity = "Bangkok"; // Default
-                String helpMsg = "Please follow standard emergency procedures.";
+                if (selectedLevel == null) return;
 
-                // Logic to map the disaster type to the correct geographic region
-                if (type.equals("TSUNAMI")) {
-                    targetCity = "Phuket";
-                    helpMsg = "EVACUATE INLAND. Seek higher ground immediately. Tsunami waves expected within 15 minutes.";
-                } else if (type.equals("EARTHQUAKE")) {
-                    targetCity = "Chiang Rai";
-                    helpMsg = "DROP, COVER, AND HOLD ON. Stay away from glass, windows, and outer walls.";
-                } else if (type.equals("FLOOD")) {
-                    targetCity = "Chiang Mai";
-                    helpMsg = "FLASH FLOOD WARNING. Move to higher floors. Do not attempt to walk or drive through flood waters.";
-                } else if (type.equals("TYPHOON")) {
-                    targetCity = "Chumphon";
-                    helpMsg = "HIGH WIND WARNING. Secure loose outdoor objects and stay indoors away from windows.";
-                } else if (type.equals("HEATWAVE")) {
-                    targetCity = "Khon Kaen";
-                    helpMsg = "EXTREME HEAT ALERT. Limit outdoor activity, stay hydrated, and check on vulnerable neighbors.";
+                // 2. Determine Target City (Java 8 Switch)
+                String targetCity;
+                switch (type) {
+                    case "TSUNAMI":    targetCity = "Phuket"; break;
+                    case "EARTHQUAKE": targetCity = "Chiang Rai"; break;
+                    case "FLOOD":      targetCity = "Chiang Mai"; break;
+                    case "TYPHOON":    targetCity = "Chumphon"; break;
+                    case "HEATWAVE":   targetCity = "Khon Kaen"; break;
+                    default:           targetCity = "Bangkok"; break;
                 }
 
-                DisasterBroadcaster.getInstance().notifyObservers(type, targetCity, helpMsg);
+                // 3. Generate Message based on Severity
+                String helpMsg = getCustomMessage(type, selectedLevel);
+
+                // 4. Implement Decorator Chain
+                Alert alertChain = new MapVisualDecorator(
+                    new CitizenBroadcasterDecorator(
+                        new BasicAlert(this)
+                    ), mapPanel
+                );
+
+                // 5. Fire Alert
+                alertChain.issue(type, targetCity, helpMsg, selectedLevel);
             });
 
             controlPanel.add(btn);
@@ -174,7 +181,7 @@ public class MainDashboard extends JFrame {
             mapPanel.clearOverlay();
             log("SYSTEM: Recovery protocols complete. Map overlays cleared.");
             // Notify all observers to reset
-            DisasterBroadcaster.getInstance().notifyObservers("RESET", "", "");
+            DisasterBroadcaster.getInstance().notifyObservers("RESET", "ALL", "Clear", SeverityLevel.SAFE);
         });
         controlPanel.add(Box.createVerticalGlue());
         controlPanel.add(resetBtn);
@@ -197,6 +204,25 @@ public class MainDashboard extends JFrame {
         // Start Telemetry
         new Timer(30000, e -> refreshSensors()).start();
         refreshSensors();
+    }
+
+    // Helper method for messages
+    private String getTargetCity(String type) {
+        // Java 8 Switch Syntax
+        switch (type) {
+            case "TSUNAMI":    return "Phuket";
+            case "EARTHQUAKE": return "Chiang Rai";
+            case "FLOOD":      return "Chiang Mai";
+            case "TYPHOON":    return "Chumphon";
+            case "HEATWAVE":   return "Khon Kaen";
+            default:           return "Bangkok";
+        }
+    }
+
+    private String getCustomMessage(String type, SeverityLevel level) {
+        if (level == SeverityLevel.LOW) return "Minor " + type + " activity detected.";
+        if (level == SeverityLevel.MEDIUM) return "WARNING: High " + type + " risk. Prepare kits.";
+        return "CRITICAL: " + type + " IMPACT IMMINENT. EVACUATE.";
     }
 
     private void initConsole() {
@@ -288,26 +314,6 @@ public class MainDashboard extends JFrame {
         });
         
         return b;
-    }
-
-    private void triggerEvent(String action) {
-        if (action.equals("TSUNAMI")) {
-            // Update province color (Phuket)
-            mapPanel.setProvinceStatus("TH90", SeverityLevel.CRITICAL); 
-            
-            // Trigger the Red Overlay Circle (Center at Phuket, Radius 75)
-            mapPanel.triggerDisasterOverlay("Songkhla", 75);
-            
-            log("ALARM: Tsunami impact visualization active for Phuket (TH10).");
-        } else if (action.equals("RESET")) {
-            // Reset color
-            mapPanel.setProvinceStatus("TH90", SeverityLevel.SAFE);
-            
-            // Clear the Overlay
-            mapPanel.clearOverlay();
-            
-            log("SYSTEM: Recovery protocols complete. Map overlays cleared.");
-        }
     }
 
     public void log(String message) {

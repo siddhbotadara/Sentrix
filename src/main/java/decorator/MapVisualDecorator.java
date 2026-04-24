@@ -13,9 +13,7 @@ public class MapVisualDecorator extends AlertDecorator {
     @Override
     public void issue(String type, String location, String message, SeverityLevel level) {
         super.issue(type, location, message, level);
-        // Uses your existing logic: trigger overlay by City Name
-        mapPanel.triggerDisasterOverlay(location, 85); 
-        // Note: You can still call mapPanel.setProvinceStatus here if you have a way to 
-        // resolve the ID, otherwise the circle overlay works on name alone!
+        // Dynamically use the overlay color from the severity level
+        mapPanel.triggerDisasterOverlay(location, 85, level.getOverlayColor()); 
     }
 }

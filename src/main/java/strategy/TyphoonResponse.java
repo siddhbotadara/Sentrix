@@ -14,6 +14,6 @@ public class TyphoonResponse implements DisasterResponseStrategy {
     public void simulate(ThailandMapPanel map) {
         // Target Northern regions like Chiang Mai
         map.setProvinceStatus("TH86", SeverityLevel.CRITICAL);
-        map.triggerDisasterOverlay("Chumphon", 85);
+        map.triggerDisasterOverlay("Chumphon", 85, SeverityLevel.CRITICAL.getOverlayColor());
     }
 }

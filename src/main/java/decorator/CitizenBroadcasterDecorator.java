@@ -10,7 +10,7 @@ public class CitizenBroadcasterDecorator extends AlertDecorator {
     @Override
     public void issue(String type, String location, String message, SeverityLevel level) {
         super.issue(type, location, message, level);
-        // Broadcast to all registered CitizenGUIs
-        DisasterBroadcaster.getInstance().notifyObservers(type, location, message);
+        // FIXED: Passing 'level' to the broadcaster so observers get the color data
+        DisasterBroadcaster.getInstance().notifyObservers(type, location, message, level);
     }
 }

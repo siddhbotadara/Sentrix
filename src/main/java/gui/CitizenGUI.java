@@ -4,6 +4,9 @@ import observer.DisasterBroadcaster;
 import observer.Observer;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+
+import models.SeverityLevel;
+
 import java.awt.*;
 
 public class CitizenGUI extends JFrame implements Observer {
@@ -61,24 +64,25 @@ public class CitizenGUI extends JFrame implements Observer {
     }
 
     @Override
-    public void update(String type, String location, String message) {
+    public void update(String type, String location, String message, SeverityLevel level) {
         if (type.equals("RESET")) {
             statusLabel.setText("SYSTEM STATUS: SAFE");
-            statusLabel.setForeground(new Color(0, 255, 150)); // Back to Green
+            statusLabel.setForeground(new Color(0, 255, 150));
             instructionArea.setText("Protocols reset. All clear.");
             return;
         }
 
-        // FILTER: Only show alert if it matches the citizen's location
         if (currentRegisteredLocation.equalsIgnoreCase(location)) {
-            // The UI updates instantly here without requiring a click
-            statusLabel.setText("CRITICAL: " + type + "!");
-            statusLabel.setForeground(Color.RED);
+            // Use the severity level to set the UI theme
+            if (level != null) {
+                statusLabel.setText(level.getLabel() + ": " + type + "!");
+                statusLabel.setForeground(level.getCoreColor());
+            } else {
+                statusLabel.setText("CRITICAL: " + type + "!");
+                statusLabel.setForeground(Color.RED);
+            }
             
-            // Update the text area with the safety instructions
             instructionArea.setText("LOCATION: " + location.toUpperCase() + "\n\n" + message);
-            
-            // Optional: You could add a beep sound here instead of a popup
             Toolkit.getDefaultToolkit().beep(); 
         }
     }

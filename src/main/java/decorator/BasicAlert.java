@@ -11,7 +11,6 @@ public class BasicAlert implements Alert {
 
     @Override
     public void issue(String type, String location, String message, SeverityLevel level) {
-        // Core functionality: Log the event to the system console
-        dashboard.log("[" + level + "] " + type + " detected: " + location);
+        dashboard.log("[" + level.getLabel() + "] " + type + " detected in " + location);
     }
 }
