@@ -13,7 +13,7 @@ public class DisasterOverlay {
 
     public DisasterOverlay() {
 
-        // Approximate coordinates relative to SVG internal dimensions
+        // Approximate coordinates
         cityCoords.put("Bangkok", new Point(449, 460)); // Capital, TH10
         cityCoords.put("Phuket", new Point(311, 814));  // tsunami, TH83
         cityCoords.put("Chiang Rai", new Point(405, 84)); // Earthquake, TH57
@@ -44,5 +44,9 @@ public class DisasterOverlay {
         g2.setColor(currentColor.getRGB() != 0 ? currentColor.darker() : Color.RED);
         g2.setStroke(new BasicStroke(3));
         g2.draw(new Ellipse2D.Double(p.x - radius, p.y - radius, radius * 2, radius * 2));
+    }
+
+    public Point getCityLocation(String cityName) {
+        return cityCoords.get(cityName);
     }
 }

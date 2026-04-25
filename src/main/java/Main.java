@@ -4,7 +4,7 @@ import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
-        // Apply modern developer theme
+
         try {
             UIManager.setLookAndFeel(new FlatDarkLaf());
             UIManager.put("ProgressBar.arc", 999);
@@ -16,7 +16,7 @@ public class Main {
         SwingUtilities.invokeLater(() -> {
             MainDashboard dashboard = new MainDashboard();
             dashboard.setVisible(true);
-            dashboard.log("SENTRIX OS Initialized. Waiting for sensor handshake...");
+            dashboard.log("SENTRIX Initialized. Waiting for disasters...");
         });
     }
 }

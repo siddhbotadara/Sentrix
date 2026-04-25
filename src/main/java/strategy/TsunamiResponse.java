@@ -11,7 +11,7 @@ public class TsunamiResponse implements DisasterResponseStrategy {
 
     @Override
     public void simulate(ThailandMapPanel map) {
-        // Target Phuket area
+
         map.setProvinceStatus("TH83", SeverityLevel.CRITICAL); 
         map.triggerDisasterOverlay("Phuket", 100, SeverityLevel.CRITICAL.getOverlayColor());
     }

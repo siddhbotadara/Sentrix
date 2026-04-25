@@ -3,7 +3,7 @@ package models;
 import java.awt.Color;
 
 public enum SeverityLevel {
-    // Add SAFE here for the Reset button
+
     SAFE("SAFE", new Color(0, 255, 150), new Color(0, 255, 150, 0)),
     LOW("ADVISORY", new Color(0, 255, 150), new Color(0, 255, 150, 90)),
     MEDIUM("WARNING", new Color(255, 200, 0), new Color(255, 200, 0, 110)),

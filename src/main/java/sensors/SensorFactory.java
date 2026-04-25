@@ -22,7 +22,7 @@ public class SensorFactory {
 
     public static WeatherData fetchRealTimeData(String city) {
         try {
-            // For "Thailand Overall", we use Bangkok as the primary relay station
+
             String queryCity = city.equalsIgnoreCase("THAILAND (OVERALL)") ? "Bangkok" : city;
             URL url = new URL(BASE_URL + queryCity.replace(" ", "%20") + "&appid=" + API_KEY);
             
@@ -48,11 +48,11 @@ public class SensorFactory {
 
             double rain = 0.0;
             if (json.contains("\"rain\"")) {
-                // Extracts the value inside "1h": or "3h":
+
                 try {
                     rain = Double.parseDouble(extract(json, "\"1h\":", "}"));
                 } catch (Exception e) {
-                    // Fallback for different JSON formats or 3h data
+
                     rain = 0.0;
                 }
             }

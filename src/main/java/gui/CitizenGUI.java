@@ -21,7 +21,6 @@ public class CitizenGUI extends JFrame implements Observer {
         setLayout(new BorderLayout());
         getContentPane().setBackground(new Color(15, 20, 25));
 
-        // Header: Location Entry
         JPanel header = new JPanel();
         header.setBackground(new Color(30, 35, 45));
         locationField = new JTextField(12);
@@ -31,7 +30,6 @@ public class CitizenGUI extends JFrame implements Observer {
         header.add(regBtn);
         add(header, BorderLayout.NORTH);
 
-        // Body: Alert Status
         JPanel body = new JPanel(new BorderLayout(10, 10));
         body.setOpaque(false);
         body.setBorder(new EmptyBorder(20, 20, 20, 20));
@@ -73,7 +71,6 @@ public class CitizenGUI extends JFrame implements Observer {
         }
 
         if (currentRegisteredLocation.equalsIgnoreCase(location)) {
-            // Use the severity level to set the UI theme
             if (level != null) {
                 statusLabel.setText(level.getLabel() + ": " + type + "!");
                 statusLabel.setForeground(level.getCoreColor());
