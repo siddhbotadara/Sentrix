@@ -5,6 +5,8 @@ Sentrix is a real-time, intelligent disaster management system designed to detec
 
 The system simulates a national-level emergency infrastructure that continuously monitors environmental data and triggers appropriate response mechanisms.
 
+[Class Diagram Link](https://discord.com/channels/@me/1402915010166132759/1497911208303661160)
+
 ---
 
 ## 🌍 Problem
