@@ -9,9 +9,11 @@ public class DisasterOverlay {
     private String activeCity = null;
     private int radius = 0;
     private final Map<String, Point> cityCoords = new HashMap<>();
+    private Color currentColor = new Color(255, 0, 85, 90);
 
     public DisasterOverlay() {
-        // Approximate coordinates relative to SVG internal dimensions
+
+        // Approximate coordinates
         cityCoords.put("Bangkok", new Point(449, 460)); // Capital, TH10
         cityCoords.put("Phuket", new Point(311, 814));  // tsunami, TH83
         cityCoords.put("Chiang Rai", new Point(405, 84)); // Earthquake, TH57
@@ -22,9 +24,10 @@ public class DisasterOverlay {
         cityCoords.put("Chumphon", new Point(360, 647)); // Typhoon, TH86
     }
 
-    public void setEffect(String cityName, int radius) {
+    public void setEffect(String cityName, int radius, Color color) {
         this.activeCity = cityName;
         this.radius = radius;
+        this.currentColor = color;
     }
 
     public void clear() {
@@ -33,19 +36,17 @@ public class DisasterOverlay {
 
     public void draw(Graphics2D g2) {
         if (activeCity == null || !cityCoords.containsKey(activeCity)) return;
-
         Point p = cityCoords.get(activeCity);
 
-        // Render translucent impact zone
-        g2.setColor(new Color(255, 0, 85, 90)); 
+        g2.setColor(currentColor); 
         g2.fill(new Ellipse2D.Double(p.x - radius, p.y - radius, radius * 2, radius * 2));
 
-        // Render pulse border
-        g2.setColor(new Color(255, 0, 85, 200));
+        g2.setColor(currentColor.getRGB() != 0 ? currentColor.darker() : Color.RED);
         g2.setStroke(new BasicStroke(3));
         g2.draw(new Ellipse2D.Double(p.x - radius, p.y - radius, radius * 2, radius * 2));
-        
-        // Center point
-        g2.fill(new Ellipse2D.Double(p.x - 3, p.y - 3, 6, 6));
+    }
+
+    public Point getCityLocation(String cityName) {
+        return cityCoords.get(cityName);
     }
 }

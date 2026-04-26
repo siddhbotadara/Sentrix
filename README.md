@@ -12,6 +12,7 @@ Disaster management systems are often:
 - Reactive instead of proactive
 - Slow in detecting critical events
 - Inefficient in coordinating responses
+- Not Autonoumous
 
 This leads to increased damage, delayed emergency actions, and higher risk to human life.
 
@@ -19,10 +20,11 @@ This leads to increased damage, delayed emergency actions, and higher risk to hu
 
 ## 💡 Solution
 Sentrix provides:
-- Real-time monitoring using simulated sensors
+- Real-time monitoring using real time APIs
 - Automatic disaster detection based on thresholds
 - Intelligent response selection
-- Instant alert broadcasting to multiple clients
+- Instant alert broadcasting to multiple citizens
+- Autonoumsly provides solutions
 
 ---
 
@@ -41,7 +43,7 @@ Sentrix provides:
 - Automated emergency actions
 
 ### 📢 Communication
-- Alert broadcasting system (Socket-based)
+- Alert broadcasting system
 - Simulated SMS alerts
 
 ### 🖥️ Visualization
@@ -111,32 +113,25 @@ Sensors → Weather Station → Alert System → Response Engine → Command Cen
 ## 🧠 Design Patterns Used
 
 - **Observer Pattern**  
-  Real-time updates between system components
+  Implements a centralized emergency alert system
 
 - **Strategy Pattern**  
-  Dynamic disaster response handling
+  Dynamic Emergency Response and Visualization System.
 
 - **Factory Pattern**  
-  Creation of sensor objects
+  Data Acquisition Layer, fetches the real-world evidence
 
 - **Singleton Pattern**  
-  Centralized command control
+  Implements a centralized emergency alert system inside the observer design pattern
 
 - **Decorator Pattern**  
-  Dynamic alert enhancements
-
-- **Composite Pattern**  
-  Region → Province hierarchy
-
-- **Iterator Pattern**  
-  Structured data traversal
+  Handles the multi-layered notification process, dynamically add responsibilities to an alert
 
 ---
 
 ## ⚡ Technologies Used
-- Java (Core OOP)
+- Java (Core OOP) + Design Patterns
 - Multithreading
-- Socket Programming
 - Java Swing (GUI)
 
 ---
@@ -153,7 +148,6 @@ Example:
 
 ## 🔮 Future Improvements
 - AI-based disaster prediction
-- Integration with real-world APIs
 - Mobile app support
 - Cloud-based deployment
 
@@ -161,7 +155,7 @@ Example:
 
 ## 👥 Team
 - Siddh Botadara
-- Team Member 2
+- Siravich Boonlieng Temboonkiat
 
 ---
 
